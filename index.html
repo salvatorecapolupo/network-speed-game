@@ -1,10 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>The Network Speed Game</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+  <!-- Base href per GitHub Pages in sottocartella network-speed-game -->
+  <base href="https://salvatorecapolupo.github.io/" />
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+    integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N"
+    crossorigin="anonymous"
+  />
 
   <style>
     body {
@@ -33,136 +40,136 @@
   </style>
 </head>
 <body>
+  <div class="game-container">
+    <h2>Seleziona un mezzo trasmissivo</h2>
+    <select id="device-select" class="form-control mb-3">
+      <option value=""> - </option>
+      <!-- Devices will be populated here -->
+    </select>
 
-<div class="game-container">
-  <h2>Seleziona un mezzo trasmissivo</h2>
-  <select id="device-select" class="form-control mb-3">
-    <option value=""> - </option>
-    <!-- Devices will be populated here -->
-  </select>
+    <!-- Barra di progresso per simulare il download -->
+    <h3>Simulazione di Download</h3>
+    <div class="progress mb-4">
+      <div
+        id="download-progress"
+        class="progress-bar"
+        role="progressbar"
+        style="width: 0%"
+        aria-valuenow="0"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      ></div>
+    </div>
 
-  <!-- Barra di progresso per simulare il download -->
-  <h3>Simulazione di Download</h3>
-  <div class="progress mb-4">
-      <div id="download-progress" class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-  </div>
+    <p id="download-status">
+      Seleziona un mezzo e inizia la simulazione (opzionale).
+    </p>
 
-  <p id="download-status">Seleziona un mezzo e inizia la simulazione (opzionale).</p>
+    <!-- Pulsante per avviare il download -->
+    <button id="start-download" class="btn btn-primary" disabled>
+      Simula il download
+    </button>
 
-  <!-- Pulsante per avviare il download -->
-  <button id="start-download" class="btn btn-primary" disabled>Simula il download</button>
+    <div id="game-phase" class="mt-4 jumbotron">
+      <!-- Game phases will be rendered here -->
+    </div>
 
-  
-  <div id="game-phase" class="mt-4 jumbotron">
-    <!-- Game phases will be rendered here -->
-  </div>
-  
-  <div id="image-container" class="mt-4">
-    <!-- Image will be displayed here -->
-  </div>
+    <div id="image-container" class="mt-4">
+      <!-- Image will be displayed here -->
+    </div>
 
     <!-- Avviso di rete unicast punto-punto -->
     <div class="alert alert-info" role="alert">
-        Nota: la simulazione fa riferimento ad una trasmissione dati teorica su una <strong>rete unicast punto-punto</strong>.
-      </div>
-</div>
+      Nota: la simulazione fa riferimento ad una trasmissione dati teorica su una
+      <strong>rete unicast punto-punto</strong>.
+    </div>
+  </div>
 
-<script>
-//   const devices = [
-//     { name: "4G (10 Mbps)", speed: 10, imageUrl: "4g.jpg" },
-//     { name: "5G (1000 Mbps)", speed: 1000, imageUrl: "5g.png" },
-//     { name: "Bluetooth (3 Mbps)", speed: 3, imageUrl: "bluetooth.jpg" },
-//     { name: "Doppino Ritorto (100 Mbps)", speed: 100, imageUrl: "twistedpair.jpg" },
-//     { name: "Ethernet (100 Mbps)", speed: 100, imageUrl: "ethernet.webp" },
-//     { name: "Fibra Ottica (1 Gbps)", speed: 1000, imageUrl: "fiber.webp" },
-//     { name: "Porta Parallela (1.5 Mbps)", speed: 1.5, imageUrl: "Parallelport.jpg" },
-//     { name: "Porta Seriale (115.2 Kbps)", speed: 0.1152, imageUrl: "serial.jpg" },
-//     { name: "USB 2.0 (480 Mbps)", speed: 480, imageUrl: "usb2.jpg" },
-//     { name: "USB 3.0 (5000 Mbps)", speed: 5000, imageUrl: "usb3.jpg" },
-//     { name: "Wi-Fi (54 Mbps)", speed: 54, imageUrl: "Wi-Fi.gif" },
-//     { name: "Wi-Fi 6 (1000 Mbps)", speed: 1000, imageUrl: "wifi6.png" }
-//   ];
-
+  <script>
     const devices = [
-        { name: "4G (10 Mbps)", speed: 10, imageUrl: "4g.jpg" }, // Velocità di base, 4G può arrivare fino a 150 Mbps.
-        { name: "5G (1000 Mbps)", speed: 1000, imageUrl: "5g.png" }, // Velocità tipica del 5G può variare fino a 10 Gbps.
-        { name: "Bluetooth 2.0 + EDR (3 Mbps)", speed: 3, imageUrl: "bluetooth.jpg" }, // Bluetooth 2.0.
-        { name: "Bluetooth 3.0 + HS (24 Mbps)", speed: 24, imageUrl: "bluetooth3.jpg" }, // Bluetooth 3.0.
-        { name: "Bluetooth 4.0/4.2 (1 Mbps)", speed: 1, imageUrl: "bluetooth4.jpg" }, // Bluetooth 4.x con BLE.
-        { name: "Bluetooth 5.0 (2 Mbps)", speed: 2, imageUrl: "bluetooth5.jpg" }, // Bluetooth 5.0 con BLE.
-        { name: "Doppino Ritorto (100 Mbps)", speed: 100, imageUrl: "twistedpair.jpg" }, // Cavo Cat5.
-        { name: "Ethernet (100 Mbps)", speed: 100, imageUrl: "ethernet.webp" }, // Ethernet 100BASE-T.
-        { name: "Fibra Ottica (1 Gbps)", speed: 1000, imageUrl: "fiber.webp" }, // Fibra 1 Gbps.
-        { name: "Porta Parallela (1.5 Mbps)", speed: 1.5, imageUrl: "Parallelport.jpg" }, // Porta parallela.
-        { name: "Porta Seriale (115.2 Kbps)", speed: 0.1152, imageUrl: "serial.jpg" }, // RS-232.
-        { name: "USB 2.0 (480 Mbps)", speed: 480, imageUrl: "usb2.jpg" }, // USB 2.0.
-        { name: "USB 3.0 (5000 Mbps)", speed: 5000, imageUrl: "usb3.jpg" }, // USB 3.0.
-        { name: "Wi-Fi 802.11g (54 Mbps)", speed: 54, imageUrl: "Wi-Fi.gif" }, // Wi-Fi 802.11g.
-        { name: "Wi-Fi 6 (1000 Mbps)", speed: 1000, imageUrl: "wifi6.png" } // Wi-Fi 6 può arrivare fino a 1 Gbps.
+      { name: "4G (10 Mbps)", speed: 10, imageUrl: "images/4g.jpg" },
+      { name: "5G (1000 Mbps)", speed: 1000, imageUrl: "images/5g.png" },
+      { name: "Bluetooth 2.0 + EDR (3 Mbps)", speed: 3, imageUrl: "images/bluetooth.jpg" },
+      { name: "Bluetooth 3.0 + HS (24 Mbps)", speed: 24, imageUrl: "images/bluetooth3.jpg" },
+      { name: "Bluetooth 4.0/4.2 (1 Mbps)", speed: 1, imageUrl: "images/bluetooth4.jpg" },
+      { name: "Bluetooth 5.0 (2 Mbps)", speed: 2, imageUrl: "images/bluetooth5.jpg" },
+      { name: "Doppino Ritorto (100 Mbps)", speed: 100, imageUrl: "images/twistedpair.jpg" },
+      { name: "Ethernet (100 Mbps)", speed: 100, imageUrl: "images/ethernet.webp" },
+      { name: "Fibra Ottica (1 Gbps)", speed: 1000, imageUrl: "images/fiber.webp" },
+      { name: "Porta Parallela (1.5 Mbps)", speed: 1.5, imageUrl: "images/Parallelport.jpg" },
+      { name: "Porta Seriale (115.2 Kbps)", speed: 0.1152, imageUrl: "images/serial.jpg" },
+      { name: "USB 2.0 (480 Mbps)", speed: 480, imageUrl: "images/usb2.jpg" },
+      { name: "USB 3.0 (5000 Mbps)", speed: 5000, imageUrl: "images/usb3.jpg" },
+      { name: "Wi-Fi 802.11g (54 Mbps)", speed: 54, imageUrl: "images/Wi-Fi.gif" },
+      { name: "Wi-Fi 6 (1000 Mbps)", speed: 1000, imageUrl: "images/wifi6.png" },
     ];
 
-
-  let selectedDevice = null;
-  let isDownloading = false; // Stato del download
-  let currentPhase = 1; // 1: Time Calculation, 2: File Size Calculation
+    let selectedDevice = null;
+    let isDownloading = false; // Stato del download
+    let currentPhase = 1; // 1: Time Calculation, 2: File Size Calculation
+    let downloadInterval;
 
     // Quando cambia la selezione del mezzo di trasmissione
-    document.getElementById('device-select').addEventListener('change', function() {
-        const deviceKey = this.value;
-        selectedDevice = devices[deviceKey];
-        if (selectedDevice) {
-            console.log(selectedDevice);
-            document.getElementById('start-download').disabled = false;
-            document.getElementById('download-status').innerText = `Hai selezionato ${selectedDevice.name}. Premi il pulsante per iniziare il download.`;
-        } else {
-            document.getElementById('start-download').disabled = true;
-        }
+    document.getElementById("device-select").addEventListener("change", function () {
+      const deviceKey = this.value;
+      selectedDevice = devices[deviceKey];
+      if (selectedDevice) {
+        console.log(selectedDevice);
+        document.getElementById("start-download").disabled = false;
+        document.getElementById(
+          "download-status"
+        ).innerText = `Hai selezionato ${selectedDevice.name}. Premi il pulsante per iniziare il download.`;
+      } else {
+        document.getElementById("start-download").disabled = true;
+        document.getElementById("download-status").innerText =
+          "Seleziona un mezzo e inizia la simulazione (opzionale).";
+      }
     });
 
     // Funzione per simulare il download
-document.getElementById('start-download').addEventListener('click', function() {
-    const button = this;
+    document.getElementById("start-download").addEventListener("click", function () {
+      const button = this;
 
-    // Se è già in corso un download, interrompi e annulla
-    if (isDownloading) {
+      // Se è già in corso un download, interrompi e annulla
+      if (isDownloading) {
         clearInterval(downloadInterval);
         isDownloading = false;
-        button.innerText = 'Inizia il download';
-        document.getElementById('download-progress').style.width = '0%';
-        document.getElementById('download-status').innerText = 'Download annullato.';
+        button.innerText = "Inizia il download";
+        document.getElementById("download-progress").style.width = "0%";
+        document.getElementById("download-status").innerText = "Download annullato.";
         return;
-    }
+      }
 
-    // Se non è selezionato alcun dispositivo, non fare nulla
-    if (!selectedDevice) return;
+      // Se non è selezionato alcun dispositivo, non fare nulla
+      if (!selectedDevice) return;
 
-    const fileSize = Math.floor(Math.random() * (500 - 50) + 50); // File casuale tra 50MB e 500MB
-    const downloadSpeed = selectedDevice.speed; // Velocità in Mbps
+      const fileSize = Math.floor(Math.random() * (500 - 50) + 50); // File casuale tra 50MB e 500MB
+      const downloadSpeed = selectedDevice.speed; // Velocità in Mbps
 
-    const totalSizeInBits = fileSize * 8 * 1000000; // Converti MB in bit
-    const downloadTimeInSeconds = totalSizeInBits / (downloadSpeed * 1000000); // Tempo totale di download in secondi
+      const totalSizeInBits = fileSize * 8 * 1000000; // Converti MB in bit
+      const downloadTimeInSeconds = totalSizeInBits / (downloadSpeed * 1000000); // Tempo totale di download in secondi
 
-    let downloaded = 0; // Dimensione scaricata (in bit)
-    let progressPercent = 0;
+      let downloaded = 0; // Dimensione scaricata (in bit)
+      let progressPercent = 0;
 
-    // Inizializza la barra di progresso
-    const progressBar = document.getElementById('download-progress');
-    const downloadStatus = document.getElementById('download-status');
+      // Inizializza la barra di progresso
+      const progressBar = document.getElementById("download-progress");
+      const downloadStatus = document.getElementById("download-status");
 
-    downloadStatus.innerText = `File di ${fileSize} MB in download con velocità di ${downloadSpeed} Mbps...`;
+      downloadStatus.innerText = `File di ${fileSize} MB in download con velocità di ${downloadSpeed} Mbps...`;
 
-    // Inizia il download e cambia il testo del pulsante
-    isDownloading = true;
-    button.innerText = 'Annulla il download';
+      // Inizia il download e cambia il testo del pulsante
+      isDownloading = true;
+      button.innerText = "Annulla il download";
 
-    // Aggiorna la barra di progresso ogni 100 ms
-    downloadInterval = setInterval(function() {
+      // Aggiorna la barra di progresso ogni 100 ms
+      downloadInterval = setInterval(function () {
         downloaded += (downloadSpeed * 1000000) / 10; // Aggiungi 1/10 di secondo di download in bit
         progressPercent = Math.min((downloaded / totalSizeInBits) * 100, 100);
 
         // Aggiorna la barra di progresso
-        progressBar.style.width = progressPercent + '%';
-        progressBar.setAttribute('aria-valuenow', progressPercent);
+        progressBar.style.width = progressPercent + "%";
+        progressBar.setAttribute("aria-valuenow", progressPercent);
 
         // Mostra lo stato del download
         const downloadedMB = (downloaded / (8 * 1000000)).toFixed(1); // Converti bit in MB
@@ -170,93 +177,133 @@ document.getElementById('start-download').addEventListener('click', function() {
 
         // Se il download è completato
         if (progressPercent >= 100) {
-            clearInterval(downloadInterval);
-            downloadStatus.innerText = `Download completato di ${fileSize} MB in --- secondi.`;
-            button.innerText = 'Inizia il download';
-            isDownloading = false;
+          clearInterval(downloadInterval);
+          downloadStatus.innerText = `Download completato di ${fileSize} MB in --- secondi.`;
+          button.innerText = "Inizia il download";
+          isDownloading = false;
         }
-    }, 100); // Aggiorna ogni 100 ms (10 volte al secondo)
-});
-
-  function renderDeviceOptions() {
-    const selectElement = document.getElementById('device-select');
-    devices.forEach((device, index) => {
-      const optionElement = document.createElement('option');
-      optionElement.value = index;
-      optionElement.textContent = device.name;
-      selectElement.appendChild(optionElement);
+      }, 100); // Aggiorna ogni 100 ms (10 volte al secondo)
     });
-  }
 
-  function handleDeviceSelection() {
-    const selectElement = document.getElementById('device-select');
-    const selectedIndex = selectElement.value;
-
-    if (selectedIndex === "") {
-      document.getElementById('game-phase').innerHTML = '';
-      document.getElementById('image-container').innerHTML = '';
-      return;
+    function renderDeviceOptions() {
+      const selectElement = document.getElementById("device-select");
+      devices.forEach((device, index) => {
+        const optionElement = document.createElement("option");
+        optionElement.value = index;
+        optionElement.textContent = device.name;
+        selectElement.appendChild(optionElement);
+      });
     }
 
-    selectedDevice = devices[selectedIndex];
-    document.getElementById('game-phase').innerHTML = `
-      <h3>Hai scelto: ${selectedDevice.name}</h3>
-      <button class="btn btn-info" onclick="showDeviceImage()">Mostra Immagine</button>
-      <div id="calculation-area" class="mt-4"></div>
-    `;
-    startCalculation();
-  }
+    function handleDeviceSelection() {
+      const selectElement = document.getElementById("device-select");
+      const selectedIndex = selectElement.value;
 
-  function showDeviceImage() {
-    document.getElementById('image-container').innerHTML = `
-      <img src="${selectedDevice.imageUrl}" alt="${selectedDevice.name}" class="device-img">
-    `;
-  }
+      if (selectedIndex === "") {
+        document.getElementById("game-phase").innerHTML = "";
+        document.getElementById("image-container").innerHTML = "";
+        return;
+      }
 
-  function startCalculation() {
-    if (currentPhase === 1) {
-      const fileSizeMB = getRandomFileSize();
-      document.getElementById('calculation-area').innerHTML = `
-        <p>Dimensione file: <strong>${fileSizeMB} MB</strong></p>
-        <p>Calcola il tempo necessario per trasmettere su ${selectedDevice.name}</p>
-        <input type="number" id="user-input" class="form-control mb-2" placeholder="Tempo in secondi?">
-        <button class="btn btn-success" onclick="checkTime(${fileSizeMB})">Rispondi</button>
-        <small>Esempio di risposta: 12.5 (approssimare alla prima cifra decimale)</small>
+      selectedDevice = devices[selectedIndex];
+      document.getElementById("game-phase").innerHTML = `
+        <h3>Hai scelto: ${selectedDevice.name}</h3>
+        <button class="btn btn-info" onclick="showDeviceImage()">Mostra Immagine</button>
+        <div id="calculation-area" class="mt-4"></div>
       `;
+      startCalculation();
     }
-  }
 
-  function getRandomFileSize() {
-    const sizes = [0.1, 1, 5, 10, 50, 100, 500, 1000, 5000]; // MB
-    return sizes[Math.floor(Math.random() * sizes.length)];
-  }
+    function showDeviceImage() {
+      document.getElementById(
+        "image-container"
+      ).innerHTML = `<img src="${selectedDevice.imageUrl}" alt="${selectedDevice.name}" class="device-img" />`;
+    }
 
-  function checkTime(fileSizeMB) {
-    const userInput = parseFloat(document.getElementById('user-input').value);
-    const correctTime = (fileSizeMB * 8) / selectedDevice.speed; // File size in bits divided by speed in Mbps
-    const isCorrect = Math.abs(userInput - correctTime) < 0.1; // Allow 0.1 seconds margin
+    function startCalculation() {
+      if (currentPhase === 1) {
+        const fileSizeMB = getRandomFileSize();
+        document.getElementById("calculation-area").innerHTML = `
+          <p>Dimensione file: <strong>${fileSizeMB} MB</strong></p>
+          <p>Calcola il tempo necessario per trasmettere su ${selectedDevice.name}</p>
+          <input type="number" id="user-input" class="form-control mb-2" placeholder="Tempo in secondi?" />
+          <button class="btn btn-success" onclick="checkTime(${fileSizeMB})">Verifica</button>
+          <p id="feedback" class="mt-2"></p>
+        `;
+      } else if (currentPhase === 2) {
+        const timeSeconds = getRandomTime();
+        document.getElementById("calculation-area").innerHTML = `
+          <p>Tempo: <strong>${timeSeconds} secondi</strong></p>
+          <p>Calcola la dimensione del file trasmesso su ${selectedDevice.name}</p>
+          <input type="number" id="user-input" class="form-control mb-2" placeholder="Dimensione file in MB?" />
+          <button class="btn btn-success" onclick="checkFileSize(${timeSeconds})">Verifica</button>
+          <p id="feedback" class="mt-2"></p>
+        `;
+      }
+    }
 
-    document.getElementById('calculation-area').innerHTML += `
-      <div class="result-text ${isCorrect ? 'text-success' : 'text-danger'}">
-        ${isCorrect ? 'Giusto!' : 'Sbagliato!'}
-      </div>
-      <div class="explanation">
-        <p style="color: blue;">Procedimento passo-passo</p>
-        <p style="color: grey;">Dimensione File (MB) * 8 = Dimensione File in bit</p>
-        <p style="color: blue;">${fileSizeMB} * 8 = ${(fileSizeMB * 8).toFixed(1)} bit</p>
-        <p style="color: grey;">Tempo di trasmissione = Dimensione File in bit / Speed in Mbps</p>
-        <p style="color: blue;">${(fileSizeMB * 8).toFixed(1)} bit / ${selectedDevice.speed} Mbps = ${correctTime.toFixed(1)} s</p>
-      </div>
-      <a class="btn btn-primary mt-3" href="index.html">Prova Ancora</a>
-    `;
-  }
+    function getRandomFileSize() {
+      return Math.floor(Math.random() * (500 - 50) + 50);
+    }
 
-  // Initialize the select options
-  renderDeviceOptions();
+    function getRandomTime() {
+      return Math.floor(Math.random() * (60 - 5) + 5);
+    }
 
-  // Attach event listener for selection change
-  document.getElementById('device-select').addEventListener('change', handleDeviceSelection);
-</script>
+    function checkTime(fileSizeMB) {
+      const userInput = parseFloat(document.getElementById("user-input").value);
+      if (isNaN(userInput)) {
+        setFeedback("Inserisci un numero valido.", false);
+        return;
+      }
 
+      const speedMbps = selectedDevice.speed;
+      const correctTime = (fileSizeMB * 8) / speedMbps;
+
+      if (Math.abs(userInput - correctTime) <= correctTime * 0.1) {
+        setFeedback("Risposta corretta!", true);
+        currentPhase = 2;
+        setTimeout(startCalculation, 1500);
+      } else {
+        setFeedback(`Risposta errata. Il tempo corretto è circa ${correctTime.toFixed(2)} secondi.`, false);
+      }
+    }
+
+    function checkFileSize(timeSeconds) {
+      const userInput = parseFloat(document.getElementById("user-input").value);
+      if (isNaN(userInput)) {
+        setFeedback("Inserisci un numero valido.", false);
+        return;
+      }
+
+      const speedMbps = selectedDevice.speed;
+      const correctFileSize = (timeSeconds * speedMbps) / 8;
+
+      if (Math.abs(userInput - correctFileSize) <= correctFileSize * 0.1) {
+        setFeedback("Risposta corretta!", true);
+        currentPhase = 1;
+        setTimeout(() => {
+          alert("Bravo! Hai completato la simulazione.");
+          document.getElementById("game-phase").innerHTML = "";
+          document.getElementById("image-container").innerHTML = "";
+          document.getElementById("device-select").value = "";
+          selectedDevice = null;
+        }, 1500);
+      } else {
+        setFeedback(`Risposta errata. La dimensione corretta è circa ${correctFileSize.toFixed(2)} MB.`, false);
+      }
+    }
+
+    function setFeedback(message, isCorrect) {
+      const feedback = document.getElementById("feedback");
+      feedback.textContent = message;
+      feedback.style.color = isCorrect ? "green" : "red";
+    }
+
+    renderDeviceOptions();
+
+    // Aggiorna la fase di gioco alla selezione del dispositivo
+    document.getElementById("device-select").addEventListener("change", handleDeviceSelection);
+  </script>
 </body>
 </html>
